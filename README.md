@@ -1,1 +1,2 @@
-# paulbeard.name
+# The website of
+# Paul Beard
