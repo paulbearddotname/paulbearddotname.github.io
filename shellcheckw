@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if ! which shellcheck >/dev/null && which docker >/dev/null
+then
+    docker run --rm -v "$PWD":/mnt koalaman/shellcheck "$@"
+else
+    shellcheck "$@"
+fi
