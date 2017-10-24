@@ -1,0 +1,3 @@
+#!/bin/bash
+
+vim -n -c TOhtml -c wq -c q -- "$@"

@@ -1,0 +1,16 @@
+<pre>
+<span class="Comment"># Find large files and directories:</span>
+
+<span class="Statement">du</span> <span class="Special">-amx</span> /|<span class="Statement">sort</span> <span class="Special">-t</span><span class="Statement">$'</span><span class="Special">\t</span><span class="Statement">'</span> <span class="Special">-k</span>1nr,<span class="Constant">1</span>|head <span class="Constant">-100</span>|<span class="Statement">sort</span> <span class="Special">-t</span><span class="Statement">$'</span><span class="Special">\t</span><span class="Statement">'</span> <span class="Special">-k</span>2,<span class="Constant">2</span>
+
+<span class="Comment"># TCP hole punching:</span>
+
+<span class="Comment">## With hping3:</span>
+hping3 <span class="Special">-c</span> <span class="Constant">1</span> <span class="Special">-S</span> <span class="Special">-s</span> <span class="Constant">22</span> <span class="Special">-p</span> <span class="Constant">22222</span> <span class="Statement">&quot;</span><span class="PreProc">${</span><span class="PreProc">CLIENT</span><span class="Statement">:?</span><span class="PreProc">}</span><span class="Statement">&quot;</span>
+
+<span class="Comment">## With nping:</span>
+nping <span class="Special">-c</span> <span class="Constant">1</span> <span class="Special">-N</span> <span class="Special">--tcp</span> <span class="Special">--flags</span> SYN <span class="Special">-g</span> <span class="Constant">22</span> <span class="Special">-p</span> <span class="Constant">22222</span> <span class="Statement">&quot;</span><span class="PreProc">${</span><span class="PreProc">CLIENT</span><span class="Statement">:?</span><span class="PreProc">}</span><span class="Statement">&quot;</span>
+
+<span class="Comment">## SSH through a punched hole:</span>
+ssh <span class="Special">-oProxyCommand</span><span class="Statement">=</span><span class="Statement">'</span><span class="Constant">nc -p 22222 %h %p</span><span class="Statement">'</span> <span class="Statement">&quot;</span><span class="PreProc">${</span><span class="PreProc">SERVER</span><span class="Statement">:?</span><span class="PreProc">}</span><span class="Statement">&quot;</span>
+</pre>

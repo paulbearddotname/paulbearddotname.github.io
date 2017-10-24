@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+cd -- "$(dirname -- "$0")"
+
+tohtml bashoneliners.sh
+
+sed -n '/^<style/,/^<\/style>/{/^\./p;}' bashoneliners.sh.html >vim.css
+sed -nE '/^<pre/,/^<\/pre>/{s/<pre id='\'vimCodeElement\''>/<pre>/;s/<span id="L[0-9]+" class="LineNr"> *[0-9]+ <\/span>//;/<span class="Comment">#!\/bin\/bash<\/span>/!p;}' bashoneliners.sh.html >pre.html
+
+rm bashoneliners.sh.html

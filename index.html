@@ -6,13 +6,13 @@
             body { font-family: sans-serif; }
             a { text-decoration: inherit; color: inherit; }
             pre { white-space: pre-wrap; font-family: monospace; color: #000000; background-color: #ffffff; }
+            .Comment { color: #0000c0; }
+            .Constant { color: #c00000; }
             .LineNr { color: #af5f00; }
             .PreProc { color: #c000c0; }
-            .Comment { color: #0000c0; }
-            .Type { color: #008000; }
-            .Constant { color: #c00000; }
             .Special { color: #c000c0; }
             .Statement { color: #af5f00; }
+            .Type { color: #008000; }
         </style>
     </head>
     <body>
@@ -27,11 +27,14 @@
             <a href="https://github.com/paulbearddotname" target="_blank"><span style="font-weight: bold;">GitHub</span> https://github.com/paulbearddotname</a>
         </p>
 
-        <pre><code><span class="Type">int</span>(main)(){<span class="Type">int</span>(x)=<span class="Constant">0</span>;<span class="Statement">while</span>(putchar((<span class="Type">int</span>)(x&lt;<span class="Constant">5</span>?(((-<span class="Constant">0.25</span>*x-<span class="Constant">3.83</span>)*x+<span class="Constant">14.7</span>)*x+<span class="Constant">6.3</span>)*x+++<span class="Constant">80.9</span>:((((<span class="Constant">0.99167</span>*x-<span class="Constant">39.375</span>)*x+<span class="Constant">612.292</span>)*x-<span class="Constant">4668.13</span>)*x+<span class="Constant">17474.2</span>)*x++-<span class="Constant">25627.1</span>))-<span class="Constant">10</span>);}</code></pre>
+<pre>
+<span class="Type">int</span>(main)(){<span class="Type">int</span>(x)=<span class="Constant">0</span>;<span class="Statement">while</span>(putchar((<span class="Type">int</span>)(x&lt;<span class="Constant">5</span>?(((-<span class="Constant">0.25</span>*x-<span class="Constant">3.83</span>)*x+<span class="Constant">14.7</span>)*x+<span class="Constant">6.3</span>)*x+++<span class="Constant">80.9</span>:((((<span class="Constant">0.99167</span>*x-<span class="Constant">39.375</span>)*x+<span class="Constant">612.292</span>)*x-<span class="Constant">4668.13</span>)*x+<span class="Constant">17474.2</span>)*x++-<span class="Constant">25627.1</span>))-<span class="Constant">10</span>);}
+</pre>
 
         <h2><a id="bashoneliners" href="#bashoneliners">Bash oneliners.</a></h2>
 
-        <pre><code><span class="Comment"># Find large files and directories:</span>
+<pre>
+<span class="Comment"># Find large files and directories:</span>
 
 <span class="Statement">du</span> <span class="Special">-amx</span> /|<span class="Statement">sort</span> <span class="Special">-t</span><span class="Statement">$'</span><span class="Special">\t</span><span class="Statement">'</span> <span class="Special">-k</span>1nr,<span class="Constant">1</span>|head <span class="Constant">-100</span>|<span class="Statement">sort</span> <span class="Special">-t</span><span class="Statement">$'</span><span class="Special">\t</span><span class="Statement">'</span> <span class="Special">-k</span>2,<span class="Constant">2</span>
 
@@ -45,7 +48,7 @@ nping <span class="Special">-c</span> <span class="Constant">1</span> <span clas
 
 <span class="Comment">## SSH through a punched hole:</span>
 ssh <span class="Special">-oProxyCommand</span><span class="Statement">=</span><span class="Statement">'</span><span class="Constant">nc -p 22222 %h %p</span><span class="Statement">'</span> <span class="Statement">&quot;</span><span class="PreProc">${</span><span class="PreProc">SERVER</span><span class="Statement">:?</span><span class="PreProc">}</span><span class="Statement">&quot;</span>
-</code></pre>
+</pre>
 
         <h2><a id="basicgames" href="#basicgames">Basic Minesweeper and Snake games for Casio fx-9750G PLUS calculators.</a></h2>
 
@@ -72,14 +75,15 @@ ssh <span class="Special">-oProxyCommand</span><span class="Statement">=</span><
         <p>lnbackup is a backup program capable of creating backup directories that mirror the source without duplicating unmodified files.</p>
 
         <p>Each run results in a new backup directory named with the date and time the backup started.
-Each backup directory is a complete mirror of the source.
-Unmodified backup files are hard linked.
-New backup files are created as copy-on-write duplicates of source files if possible.
-Files are also indexed by hash to identify moved, renamed, and duplicate files.</p>
+        Each backup directory is a complete mirror of the source.
+        Unmodified backup files are hard linked.
+        New backup files are created as copy-on-write duplicates of source files if possible.
+        Files are also indexed by hash to identify moved, renamed, and duplicate files.</p>
 
         <p>Slower but more space efficient than <a href="#rsyncbackup">rsyncbackup</a>.</p>
 
-        <pre><code>$ lnbackup -h
+<pre>
+$ lnbackup -h
 lnbackup version 1
 Copyright (c) 2017 Paul Beard.
 Website: paulbeard.name
@@ -92,7 +96,7 @@ Options:
  -h       show this help
  SRC_FROM read source list from file
  DEST     destination directory
-</code></pre>
+</pre>
 
         <p>
             <a href="projects/lnbackup/downloads/lnbackup">lnbackup</a><br/>
@@ -103,12 +107,13 @@ Options:
         <p>rsyncbackup is a backup program capable of creating backup directories that mirror the source without duplicating unmodified files.</p>
 
         <p>Each run results in a new backup directory named with the date and time the backup started.
-Each backup directory is a complete mirror of the source.
-Unmodified backup files are hard linked.</p>
+        Each backup directory is a complete mirror of the source.
+        Unmodified backup files are hard linked.</p>
 
         <p>Faster but less space efficient than <a href="#lnbackup">lnbackup</a>.</p>
 
-        <pre><code>$ rsyncbackup -h
+<pre>
+$ rsyncbackup -h
 rsyncbackup version 1
 Copyright (c) 2017 Paul Beard.
 Website: paulbeard.name
@@ -121,7 +126,7 @@ Options:
  -h       show this help
  SRC_FROM read source list from file
  DEST     destination directory
-</code></pre>
+</pre>
 
         <p>
             <a href="projects/rsyncbackup/downloads/rsyncbackup">rsyncbackup</a><br/>

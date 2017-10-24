@@ -4,6 +4,11 @@ set -e
 
 cd -- "$(dirname -- "$0")"
 
+export PATH=$PWD:$PATH
+
+projects/signature/signaturetohtml
+projects/bashoneliners/bashonelinerstohtml
+
 exec >index.html
 
 cat <<EOD
@@ -15,13 +20,9 @@ cat <<EOD
             body { font-family: sans-serif; }
             a { text-decoration: inherit; color: inherit; }
             pre { white-space: pre-wrap; font-family: monospace; color: #000000; background-color: #ffffff; }
-            .LineNr { color: #af5f00; }
-            .PreProc { color: #c000c0; }
-            .Comment { color: #0000c0; }
-            .Type { color: #008000; }
-            .Constant { color: #c00000; }
-            .Special { color: #c000c0; }
-            .Statement { color: #af5f00; }
+EOD
+cat projects/*/vim.css | sort -u | sed '/^ *$/!s/^/            /'
+cat <<EOD
         </style>
     </head>
     <body>
@@ -36,21 +37,32 @@ cat <<EOD
             <a href="https://github.com/paulbearddotname" target="_blank"><span style="font-weight: bold;">GitHub</span> https://github.com/paulbearddotname</a>
         </p>
 
-        <pre><code><span class="Type">int</span>(main)(){<span class="Type">int</span>(x)=<span class="Constant">0</span>;<span class="Statement">while</span>(putchar((<span class="Type">int</span>)(x&lt;<span class="Constant">5</span>?(((-<span class="Constant">0.25</span>*x-<span class="Constant">3.83</span>)*x+<span class="Constant">14.7</span>)*x+<span class="Constant">6.3</span>)*x+++<span class="Constant">80.9</span>:((((<span class="Constant">0.99167</span>*x-<span class="Constant">39.375</span>)*x+<span class="Constant">612.292</span>)*x-<span class="Constant">4668.13</span>)*x+<span class="Constant">17474.2</span>)*x++-<span class="Constant">25627.1</span>))-<span class="Constant">10</span>);}</code></pre>
 EOD
+sed '/<pre>/,/<\/pre>/!{/^ *$/!s/^/        /;}' projects/signature/pre.html
 
 find projects -mindepth 1 -maxdepth 1 -type d | sort | while read -r PROJECT
 do
-    echo
-    cat "$PROJECT/index.html"
+    if [[ ! -e "$PROJECT"/index.html ]]
+    then
+        continue
+    fi
 
-    if [[ -e "$PROJECT/screenshots" ]]
+    echo
+    sed '/<pre>/,/<\/pre>/!{/^ *$/!s/^/        /;}' "$PROJECT"/index.html
+
+    if [[ -e "$PROJECT"/pre.html ]]
+    then
+        echo
+        sed '/<pre>/,/<\/pre>/!{/^ *$/!s/^/        /;}' "$PROJECT"/pre.html
+    fi
+
+    if [[ -e "$PROJECT"/screenshots ]]
     then
         cat <<EOD
 
         <p>
 EOD
-        find "$PROJECT/screenshots" -type f -not -name .\* | sort | while read -r SCREENSHOT
+        find "$PROJECT"/screenshots -type f -not -name .\* | sort | while read -r SCREENSHOT
         do
         cat <<EOD
             <img src="$SCREENSHOT" alt="$(basename -- "$SCREENSHOT")"/>
@@ -61,13 +73,13 @@ EOD
 EOD
     fi
 
-    if [[ -e "$PROJECT/downloads" ]]
+    if [[ -e "$PROJECT"/downloads ]]
     then
         cat <<EOD
 
         <p>
 EOD
-        find "$PROJECT/downloads" -type f -not -name .\* | sort | while read -r DOWNLOAD
+        find "$PROJECT"/downloads -type f -not -name .\* | sort | while read -r DOWNLOAD
         do
         cat <<EOD
             <a href="$DOWNLOAD">$(basename -- "$DOWNLOAD")</a><br/>

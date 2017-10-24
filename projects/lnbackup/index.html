@@ -1,16 +1,17 @@
-        <h2><a id="lnbackup" href="#lnbackup">lnbackup.</a></h2>
+<h2><a id="lnbackup" href="#lnbackup">lnbackup.</a></h2>
 
-        <p>lnbackup is a backup program capable of creating backup directories that mirror the source without duplicating unmodified files.</p>
+<p>lnbackup is a backup program capable of creating backup directories that mirror the source without duplicating unmodified files.</p>
 
-        <p>Each run results in a new backup directory named with the date and time the backup started.
+<p>Each run results in a new backup directory named with the date and time the backup started.
 Each backup directory is a complete mirror of the source.
 Unmodified backup files are hard linked.
 New backup files are created as copy-on-write duplicates of source files if possible.
 Files are also indexed by hash to identify moved, renamed, and duplicate files.</p>
 
-        <p>Slower but more space efficient than <a href="#rsyncbackup">rsyncbackup</a>.</p>
+<p>Slower but more space efficient than <a href="#rsyncbackup">rsyncbackup</a>.</p>
 
-        <pre><code>$ lnbackup -h
+<pre>
+$ lnbackup -h
 lnbackup version 1
 Copyright (c) 2017 Paul Beard.
 Website: paulbeard.name
@@ -23,4 +24,4 @@ Options:
  -h       show this help
  SRC_FROM read source list from file
  DEST     destination directory
-</code></pre>
+</pre>
