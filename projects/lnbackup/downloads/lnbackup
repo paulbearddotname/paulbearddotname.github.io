@@ -27,7 +27,7 @@
 
 usage ()
 {
-    echo "lnbackup version 1
+    echo "lnbackup version 1.1
 Copyright (c) 2017 Paul Beard.
 Website: paulbeard.name
 
@@ -140,6 +140,12 @@ then
     CP_CLONEFILE=(-c)
 fi
 
+CP_REFLINK=()
+if cp --reflink=auto --help 2>/dev/null >&2 #check for reflink support
+then
+    CP_REFLINK=('--reflink=auto')
+fi
+
 DEST_DEV=$(stat -c %d -- "$DEST" 2>/dev/null || stat -f %d -- "$DEST") ||
 exit
 
@@ -214,12 +220,12 @@ do
                 then
                     echo "$DEST/Index/$KEY_P/$KEY"$'\t'"$DEST/$START.incomplete/$SRC"
                 else #key not found in index
-                    if [[ "$SRC_DEV" == "$DEST_DEV" ]]
+                    if [[ "$SRC_DEV" == "$DEST_DEV" && "${#CP_REFLINK[@]}" -eq 0 ]]
                     then
                         cp "${CP_CLONEFILE[@]}" -p -- "$SRC" \
                               "$DEST/$START.incomplete/$SRC"
                     else
-                        cp                      -p -- "$SRC" \
+                        cp "${CP_REFLINK[@]}"   -p -- "$SRC" \
                               "$DEST/$START.incomplete/$SRC"
                     fi &&
                     mkdir -p -- "$DEST/Index/$KEY_P" &&
