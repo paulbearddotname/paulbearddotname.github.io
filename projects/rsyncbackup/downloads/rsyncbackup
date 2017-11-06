@@ -27,7 +27,7 @@
 
 usage ()
 {
-    echo "rsyncbackup version 1
+    echo "rsyncbackup version 1.0.1
 Copyright (c) 2017 Paul Beard.
 Website: paulbeard.name
 
@@ -70,6 +70,13 @@ fi
 START=$(date +%Y-%m-%d-%H%M%S) ||
 exit
 
+if [[ -e $DEST/$START ]]
+then
+    echo 'Backup already exists' >&2
+
+    exit 1
+fi
+
 _trap ()
 {
     echo 'Backup interrupted' >&2
@@ -99,6 +106,14 @@ done
 
 rsync -rRlpogtv --no-implied-dirs "${LINK_DESTS[@]}" --files-from "$SRC_FROM" / "$DEST/$START.incomplete/" |
 grep -v '/$' #rsync logs too much on macOS
+
+if [[ -e $DEST/$START ]]
+then
+    echo 'Backup already exists' >&2
+
+    rm -rf -- "${DEST:?}/${START:?}.incomplete"
+    exit 1
+fi
 
 mv    -- "$DEST/$START.incomplete" \
          "$DEST/$START" &&

@@ -27,7 +27,7 @@
 
 usage ()
 {
-    echo "lnbackup version 1.1
+    echo "lnbackup version 1.1.1
 Copyright (c) 2017 Paul Beard.
 Website: paulbeard.name
 
@@ -152,6 +152,13 @@ exit
 START=$(date +%Y-%m-%d-%H%M%S) ||
 exit
 
+if [[ -e $DEST/$START ]]
+then
+    echo 'Backup already exists' >&2
+
+    exit 1
+fi
+
 _trap ()
 {
     echo 'Backup interrupted' >&2
@@ -239,6 +246,14 @@ done |
 
 lnw
 
+if [[ -e $DEST/$START ]]
+then
+    echo 'Backup already exists' >&2
+
+    rm -rf -- "${DEST:?}/${START:?}.incomplete"
+    exit 1
+fi
+
 mv    -- "$DEST/$START.incomplete" \
          "$DEST/$START" &&
 rm -f -- "$DEST/Latest" &&
@@ -285,4 +300,4 @@ do
 done
 
 #prune index
-find -- "${DEST:?}/Index" -mindepth 2 -maxdepth 2 -type f -links 1 -delete
+[[ ! -e ${DEST:?}/Index ]] || find -- "${DEST:?}/Index" -mindepth 2 -maxdepth 2 -type f -links 1 -delete
