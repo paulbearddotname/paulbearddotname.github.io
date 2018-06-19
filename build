@@ -78,11 +78,12 @@ EOD
         cat <<EOD
 
         <p>
+            <span style="font-weight: bold;">Download</span>
 EOD
         find "$PROJECT"/downloads -type f -not -name .\* | sort | while read -r DOWNLOAD
         do
         cat <<EOD
-            <a href="$DOWNLOAD">$(basename -- "$DOWNLOAD")</a><br/>
+            <a href="$DOWNLOAD">$(basename -- "$DOWNLOAD")</a>
 EOD
         done
         cat <<EOD
