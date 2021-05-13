@@ -1,4 +1,5 @@
 .Constant { color: #c00000; }
 .LineNr { color: #af5f00; }
+.PreProc { color: #c000c0; }
 .Statement { color: #af5f00; }
 .Type { color: #008000; }
