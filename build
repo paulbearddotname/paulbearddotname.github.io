@@ -28,15 +28,16 @@ cat <<EOD
         </style>
     </head>
     <body>
-        <h1 style="text-align: center;">Paul's website</h1>
+        <div style="display: flex; flex-wrap: wrap;">
+            <h1 style="flex: auto; white-space: nowrap;">Paul's website</h1>
 
-        <p style="text-align: center;">
-            <a href="mailto:web@paulbeard.name">Email web@paulbeard.name</a><br/>
-            <a href="https://www.linkedin.com/in/paulsbeard/" target="_blank">LinkedIn https://www.linkedin.com/in/paulsbeard/</a><br/>
-            <a href="https://github.com/paulbearddotname" target="_blank">GitHub https://github.com/paulbearddotname</a>
-        </p>
-
+            <p style="flex: none;">
+                <a href="mailto:web@paulbeard.name">web@paulbeard.name</a><br/>
+                <a href="https://github.com/paulbearddotname" target="_blank">https://github.com/paulbearddotname</a>
+            </p>
+        </div>
 EOD
+
 cat projects/signature/comment.html projects/signature/pre.html
 
 find projects -mindepth 1 -maxdepth 1 -type d | sort | while read -r PROJECT
