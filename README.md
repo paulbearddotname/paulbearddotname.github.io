@@ -1,1 +1,1 @@
-# The website of Paul Beard
+# Paul's website
