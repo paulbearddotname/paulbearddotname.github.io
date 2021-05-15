@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2017 Paul Beard. All rights reserved.
+# Copyright (c) 2021 Paul Beard. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -27,8 +27,8 @@
 
 usage ()
 {
-    echo "lnbackup version 1.1.1
-Copyright (c) 2017 Paul Beard.
+    echo "lnbackup version 1.2.0
+Copyright (c) 2021 Paul Beard.
 Website: paulbeard.name
 
 lnbackup is a backup program capable of creating backup directories that mirror the source without duplicating unmodified files.
@@ -97,7 +97,7 @@ then
     findw ()
     {
         #fast find
-        perl -MFile::Find -e 'foreach(@ARGV){File::Find::find({wanted=>sub{(($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime)=lstat($_))&&(-f _||-d _||-l _)&&printf"%s\t%s\t%s\t%s\t%s\t%04o\t%s\t%s\n",-f _?"-":-d _?"d":"l",$mtime,$size,$gid,$uid,$mode&07777,$dev,$_;},no_chdir=>1},$_);}' -- "$@"
+        perl -MFile::Find -e 'use warnings "File::Find";foreach(@ARGV){File::Find::find({wanted=>sub{(($dev,$ino,$mode,$nlink,$uid,$gid,$rdev,$size,$atime,$mtime)=lstat($_))&&(-f _||-d _||-l _)&&printf"%s\t%s\t%s\t%s\t%s\t%04o\t%s\t%s\n",-f _?"-":-d _?"d":"l",$mtime,$size,$gid,$uid,$mode&07777,$dev,$_;},no_chdir=>1},$_);}' -- "$@"
     }
 elif find . -quit -printf '' 2>/dev/null #GNU find
 then
@@ -193,12 +193,18 @@ sort -t $'\t' -k $SRC_C,$SRC_C |
         awk -F '\t' -v 'OFS=\t' -v "P=$DEST/Latest" -v "C=$SRC_C" 'BEGIN{L=length(P)}{$C=substr($C,L+1);gsub(/\/\/+/,"/",$C);print}' |
         sort -t $'\t' -k $SRC_C,$SRC_C
     fi |
-    join -t $'\t' -1 $SRC_C -2 $SRC_C -o 1.$TYPE_C,1.$MTIME_C,1.$SIZE_C,1.$GID_C,1.$UID_C,1.$MOD_C,1.$DEV_C,2.$TYPE_C,2.$MTIME_C,2.$SIZE_C,2.$GID_C,2.$UID_C,2.$MOD_C,1.$SRC_C -a 1 -e - -- /dev/fd/4 -
+    join -t $'\t' -1 $SRC_C -2 $SRC_C -o 1.$TYPE_C,1.$MTIME_C,1.$SIZE_C,1.$GID_C,1.$UID_C,1.$MOD_C,1.$DEV_C,2.$TYPE_C,2.$MTIME_C,2.$SIZE_C,2.$GID_C,2.$UID_C,2.$MOD_C,1.$SRC_C,2.$SRC_C -a 1 -a 2 -e NO_SUCH_FILE_OR_DIRECTORY -- /dev/fd/4 -
 } 4<&0 |
 
-while IFS=$'\t' read -r SRC_TYPE SRC_MTIME SRC_SIZE SRC_GID SRC_UID SRC_MOD SRC_DEV L_TYPE L_MTIME L_SIZE L_GID L_UID L_MOD SRC
+while IFS=$'\t' read -r SRC_TYPE SRC_MTIME SRC_SIZE SRC_GID SRC_UID SRC_MOD SRC_DEV L_TYPE L_MTIME L_SIZE L_GID L_UID L_MOD SRC L
 do
     case $SRC_TYPE in
+        NO_SUCH_FILE_OR_DIRECTORY)
+            if [[ $L_TYPE == - ]]
+            then
+                echo "$L" >&2
+            fi
+            ;;
         d)
             mkdir -m "$SRC_MOD" -- "$DEST/$START.incomplete/$SRC" &&
             if [[ "$SRC_UID" != "$UID" || "$SRC_GID" != "${GROUPS[0]}" ]]
