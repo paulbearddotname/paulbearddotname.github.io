@@ -1,8 +1,0 @@
-#!/bin/bash
-
-export PATH=~/.shellcheckw/bin:$PATH
-command -v shellcheck >/dev/null || {
-    command -v docker >/dev/null && exec docker run --rm -v "$PWD":/mnt koalaman/shellcheck "$@"
-    rm -rf ~/.shellcheckw && mkdir ~/.shellcheckw && curl -L https://github.com/Homebrew/brew/tarball/master | tar xz --strip 1 -C ~/.shellcheckw && brew install shellcheck
-}
-exec shellcheck "$@"
