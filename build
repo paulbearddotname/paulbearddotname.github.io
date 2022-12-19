@@ -5,7 +5,7 @@ set -o pipefail
 
 cd -- "$(dirname -- "$0")"
 
-export PATH=$PWD:$PATH
+export PATH=${PWD:?}:$PATH
 
 projects/signature/signaturetohtml
 projects/bashoneliners/bashonelinerstohtml
@@ -42,30 +42,30 @@ cat projects/signature/comment.html projects/signature/pre.html
 
 find projects -mindepth 1 -maxdepth 1 -type d | sort | while read -r PROJECT
 do
-    if [[ ! -e "$PROJECT"/index.html ]]
+    if [[ ! -e "${PROJECT:?}"/index.html ]]
     then
         continue
     fi
 
     echo
-    sed '/<pre>/,/<\/pre>/!{/^ *$/!s/^/        /;}' "$PROJECT"/index.html
+    sed '/<pre>/,/<\/pre>/!{/^ *$/!s/^/        /;}' "${PROJECT:?}"/index.html
 
-    if [[ -e "$PROJECT"/pre.html ]]
+    if [[ -e "${PROJECT:?}"/pre.html ]]
     then
         echo
-        sed '/<pre>/,/<\/pre>/!{/^ *$/!s/^/        /;}' "$PROJECT"/pre.html
+        sed '/<pre>/,/<\/pre>/!{/^ *$/!s/^/        /;}' "${PROJECT:?}"/pre.html
     fi
 
-    if [[ -e "$PROJECT"/screenshots ]]
+    if [[ -e "${PROJECT:?}"/screenshots ]]
     then
         cat <<EOD
 
         <p>
 EOD
-        find "$PROJECT"/screenshots -type f -not -name .\* | sort | while read -r SCREENSHOT
+        find -- "${PROJECT:?}"/screenshots -type f -not -name .\* | sort | while read -r SCREENSHOT
         do
         cat <<EOD
-            <img src="$SCREENSHOT" alt="$(basename -- "$SCREENSHOT")"/>
+            <img src="${SCREENSHOT:?}" alt="$(basename -- "${SCREENSHOT:?}")"/>
 EOD
         done
         cat <<EOD
@@ -73,17 +73,17 @@ EOD
 EOD
     fi
 
-    if [[ -e "$PROJECT"/downloads ]]
+    if [[ -e "${PROJECT:?}"/downloads ]]
     then
         cat <<EOD
 
         <p>
             Download
 EOD
-        find "$PROJECT"/downloads -type f -not -name .\* | sort | while read -r DOWNLOAD
+        find -- "${PROJECT:?}"/downloads -type f -not -name .\* | sort | while read -r DOWNLOAD
         do
         cat <<EOD
-            <a href="$DOWNLOAD">$(basename -- "$DOWNLOAD")</a>
+            <a href="${DOWNLOAD:?}">$(basename -- "${DOWNLOAD:?}")</a>
 EOD
         done
         cat <<EOD

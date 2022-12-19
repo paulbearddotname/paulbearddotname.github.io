@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright (c) 2021 Paul Beard. All rights reserved.
+# Copyright (c) 2022 Paul Beard. All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions
@@ -27,8 +27,8 @@
 
 usage ()
 {
-    echo "lnbackup version 1.2.0
-Copyright (c) 2021 Paul Beard.
+    echo "lnbackup version 1.3.0
+Copyright (c) 2022 Paul Beard.
 Website: paulbeard.name
 
 lnbackup is a backup program capable of creating backup directories that mirror the source without duplicating unmodified files.
@@ -43,10 +43,10 @@ Options:
 
 while getopts h OPT
 do
-    case $OPT in
+    case "${OPT?}" in
         *)
             usage
-            [[ $OPT == h ]]
+            [[ "${OPT?}" == h ]]
             exit
             ;;
     esac
@@ -60,9 +60,14 @@ fi
 
 SRC_FROM=$1
 DEST=$2
+if [[ ! "${SRC_FROM?}" || ! "${DEST?}" ]]
+then
+    usage
+    exit 1
+fi
 
 IFS=$'\n' read -r -d '' -a SRCS <<EOD
-$(<"$SRC_FROM")
+$(<"${SRC_FROM:?}")
 EOD
 
 if [[ ${#SRCS[@]} -lt 1 ]]
@@ -73,20 +78,20 @@ fi
 
 for SRC in "${SRCS[@]}"
 do
-    if ! [[ $SRC == /* && /$SRC/ != */../* ]]
+    if ! [[ "${SRC?}" == /* && "/${SRC?}/" != */../* ]]
     then
-        echo "$SRC is not absolute" >&2
+        echo "${SRC?} is not absolute" >&2
         exit 1
     fi
 
-    if [[ $SRC == -* ]]
+    if [[ "${SRC?}" == -* ]]
     then
-        echo "$SRC starts with -" >&2
+        echo "${SRC?} starts with -" >&2
         exit 1
     fi
 done
 
-if [[ ! -e $DEST ]]
+if [[ ! -e "${DEST:?}" ]]
 then
     echo 'DEST not found' >&2
     exit 1
@@ -124,7 +129,7 @@ else
     lnw ()
     {
         #slow link
-        while IFS=$'\t' read -r LINK_SRC LINK_DEST; do ln -- "$LINK_SRC" "$LINK_DEST"; done
+        while IFS=$'\t' read -r LINK_SRC LINK_DEST; do ln -- "${LINK_SRC:?}" "${LINK_DEST:?}"; done
     }
 fi
 
@@ -146,13 +151,13 @@ then
     CP_REFLINK=('--reflink=auto')
 fi
 
-DEST_DEV=$(stat -c %d -- "$DEST" 2>/dev/null || stat -f %d -- "$DEST") ||
+DEST_DEV=$(stat -c %d -- "${DEST:?}" 2>/dev/null || stat -f %d -- "${DEST:?}") ||
 exit
 
 START=$(date +%Y-%m-%d-%H%M%S) ||
 exit
 
-if [[ -e $DEST/$START ]]
+if [[ -e "${DEST:?}/${START:?}" ]]
 then
     echo 'Backup already exists' >&2
 
@@ -170,80 +175,80 @@ trap _trap HUP INT TERM
 
 echo 'Backup started' >&2
 
-mkdir -- "$DEST/$START.incomplete" ||
+mkdir -- "${DEST:?}/${START:?}.incomplete" ||
 exit
 
 for SRC in "${SRCS[@]}"
 do
-    mkdir -p -- "$DEST/$START.incomplete/$(dirname -- "$SRC")" ||
+    mkdir -p -- "${DEST:?}/${START:?}.incomplete/$(dirname -- "${SRC?}")" ||
     exit
 done
 
 TYPE_C=1 MTIME_C=2 SIZE_C=3 GID_C=4 UID_C=5 MOD_C=6 DEV_C=7 SRC_C=8
 
 findw "${SRCS[@]}" |
-awk -F '\t' -v 'OFS=\t' -v "C=$SRC_C" '{gsub(/\/\/+/,"/",$C);print}' |
-sort -t $'\t' -k $SRC_C,$SRC_C |
+awk -F '\t' -v 'OFS=\t' -v "C=${SRC_C:?}" '{gsub(/\/\/+/,"/",$C);print}' |
+sort -t $'\t' -k "${SRC_C:?},${SRC_C:?}" |
 
 #left join latest on path
 {
-    if [[ -e "$DEST/Latest/" ]]
+    if [[ -e "${DEST:?}/Latest/" ]]
     then
-        findw "$DEST/Latest/" |
-        awk -F '\t' -v 'OFS=\t' -v "P=$DEST/Latest" -v "C=$SRC_C" 'BEGIN{L=length(P)}{$C=substr($C,L+1);gsub(/\/\/+/,"/",$C);print}' |
-        sort -t $'\t' -k $SRC_C,$SRC_C
+        findw "${DEST:?}/Latest/" |
+        awk -F '\t' -v 'OFS=\t' -v "P=${DEST:?}/Latest" -v "C=${SRC_C:?}" 'BEGIN{L=length(P)}{$C=substr($C,L+1);gsub(/\/\/+/,"/",$C);print}' |
+        sort -t $'\t' -k "${SRC_C:?},${SRC_C:?}"
     fi |
-    join -t $'\t' -1 $SRC_C -2 $SRC_C -o 1.$TYPE_C,1.$MTIME_C,1.$SIZE_C,1.$GID_C,1.$UID_C,1.$MOD_C,1.$DEV_C,2.$TYPE_C,2.$MTIME_C,2.$SIZE_C,2.$GID_C,2.$UID_C,2.$MOD_C,1.$SRC_C,2.$SRC_C -a 1 -a 2 -e NO_SUCH_FILE_OR_DIRECTORY -- /dev/fd/4 -
+    join -t $'\t' -1 "${SRC_C:?}" -2 "${SRC_C:?}" -o "1.${TYPE_C:?},1.${MTIME_C:?},1.${SIZE_C:?},1.${GID_C:?},1.${UID_C:?},1.${MOD_C:?},1.${DEV_C:?},2.${TYPE_C:?},2.${MTIME_C:?},2.${SIZE_C:?},2.${GID_C:?},2.${UID_C:?},2.${MOD_C:?},1.${SRC_C:?},2.${SRC_C:?}" -a 1 -a 2 -e NO_SUCH_FILE_OR_DIRECTORY -- /dev/fd/4 -
 } 4<&0 |
 
 while IFS=$'\t' read -r SRC_TYPE SRC_MTIME SRC_SIZE SRC_GID SRC_UID SRC_MOD SRC_DEV L_TYPE L_MTIME L_SIZE L_GID L_UID L_MOD SRC L
 do
-    case $SRC_TYPE in
+    case "${SRC_TYPE:?}" in
         NO_SUCH_FILE_OR_DIRECTORY)
-            if [[ $L_TYPE == - ]]
+            if [[ "${L_TYPE:?}" == - ]]
             then
-                echo "$L" >&2
+                echo "${L:?}" >&2
             fi
             ;;
         d)
-            mkdir -m "$SRC_MOD" -- "$DEST/$START.incomplete/$SRC" &&
-            if [[ "$SRC_UID" != "$UID" || "$SRC_GID" != "${GROUPS[0]}" ]]
+            mkdir -m "${SRC_MOD:?}" -- "${DEST:?}/${START:?}.incomplete/${SRC:?}" &&
+            if [[ "${SRC_UID:?}" != "${UID:?}" || "${SRC_GID:?}" != "${GROUPS[0]}" ]]
             then
-                chown "$SRC_UID:$SRC_GID" "$DEST/$START.incomplete/$SRC"
+                chown -- "${SRC_UID:?}:${SRC_GID:?}" "${DEST:?}/${START:?}.incomplete/${SRC:?}"
             fi
             ;;
         l)
-            cp -pPR --                  "$SRC" \
-                "$DEST/$START.incomplete/$SRC"
+            cp -pPR --                          "${SRC:?}" \
+                "${DEST:?}/${START:?}.incomplete/${SRC:?}"
             ;;
         -)
-            if [[ "$SRC_TYPE" == "$L_TYPE" && "$SRC_MTIME" == "$L_MTIME" && "$SRC_SIZE" == "$L_SIZE" && "$SRC_GID" == "$L_GID" && "$SRC_UID" == "$L_UID" && "$SRC_MOD" == "$L_MOD" ]] #file unmodified
+            if [[ "${SRC_TYPE:?}" == "${L_TYPE:?}" && "${SRC_MTIME:?}" == "${L_MTIME:?}" && "${SRC_SIZE:?}" == "${L_SIZE:?}" && "${SRC_GID:?}" == "${L_GID:?}" && "${SRC_UID:?}" == "${L_UID:?}" && "${SRC_MOD:?}" == "${L_MOD:?}" ]] #file unmodified
             then
-                echo "$DEST/Latest/$SRC"$'\t'"$DEST/$START.incomplete/$SRC"
+                echo "${DEST:?}/Latest/${SRC:?}"$'\t'"${DEST:?}/${START:?}.incomplete/${SRC:?}"
             else #file modified
-                echo "$SRC" >&2
+                echo "${SRC:?}" >&2
 
-                HASH=$("${SHA1SUM[@]}" -b -- "$SRC") &&
+                HASH=$("${SHA1SUM[@]}" -b -- "${SRC:?}") &&
                 HASH=${HASH#\\} &&
                 HASH=${HASH%% *} &&
-                KEY="$HASH $SRC_MOD $SRC_UID $SRC_GID $SRC_MTIME $SRC_SIZE" &&
+                KEY="${HASH:?} ${SRC_MOD:?} ${SRC_UID:?} ${SRC_GID:?} ${SRC_MTIME:?} ${SRC_SIZE:?}" &&
                 KEY_P=${HASH:0:2} &&
 
-                if [[ -e "$DEST/Index/$KEY_P/$KEY" ]] #key found in index
+                if [[ -e "${DEST:?}/Index/${KEY_P:?}/${KEY:?}" ]] #key found in index
                 then
-                    echo "$DEST/Index/$KEY_P/$KEY"$'\t'"$DEST/$START.incomplete/$SRC"
+                    echo "${DEST:?}/Index/${KEY_P:?}/${KEY:?}"$'\t'"${DEST:?}/${START:?}.incomplete/${SRC:?}"
                 else #key not found in index
-                    if [[ "$SRC_DEV" == "$DEST_DEV" && "${#CP_REFLINK[@]}" -eq 0 ]]
+                    if [[ "${SRC_DEV:?}" == "${DEST_DEV:?}" && ${#CP_REFLINK[@]} -eq 0 ]]
                     then
-                        cp "${CP_CLONEFILE[@]}" -p -- "$SRC" \
-                              "$DEST/$START.incomplete/$SRC"
+                        cp "${CP_CLONEFILE[@]}" -p --           "${SRC:?}" \
+                                "${DEST:?}/${START:?}.incomplete/${SRC:?}"
                     else
-                        cp "${CP_REFLINK[@]}"   -p -- "$SRC" \
-                              "$DEST/$START.incomplete/$SRC"
+                        cp "${CP_REFLINK[@]}"   -p --           "${SRC:?}" \
+                                "${DEST:?}/${START:?}.incomplete/${SRC:?}"
                     fi &&
-                    mkdir -p -- "$DEST/Index/$KEY_P" &&
-                    ln       -- "$DEST/$START.incomplete/$SRC" \
-                                "$DEST/Index/$KEY_P/$KEY"
+                    mkdir -p -- "${DEST:?}/Index/${KEY_P:?}" &&
+                    ln       -- "${DEST:?}/${START:?}.incomplete/${SRC:?}" \
+                                "${DEST:?}/Index/${KEY_P:?}/${KEY:?}"
                 fi
             fi
             ;;
@@ -252,7 +257,7 @@ done |
 
 lnw
 
-if [[ -e $DEST/$START ]]
+if [[ -e ${DEST:?}/${START:?} ]]
 then
     echo 'Backup already exists' >&2
 
@@ -260,11 +265,11 @@ then
     exit 1
 fi
 
-mv    -- "$DEST/$START.incomplete" \
-         "$DEST/$START" &&
-rm -f -- "$DEST/Latest" &&
-ln -s -- "$START" \
-         "$DEST/Latest" ||
+mv    -- "${DEST:?}/${START:?}.incomplete" \
+         "${DEST:?}/${START:?}" &&
+rm -f -- "${DEST:?}/Latest" &&
+ln -s -- "${START:?}" \
+         "${DEST:?}/Latest" ||
 exit
 
 echo 'Backup complete' >&2
@@ -285,22 +290,22 @@ exit
 
 SRC_C=1 WEEK_C=2 DATE_C=3 TIMESTAMP_C=4 WEEK_I_C=5 DATE_I_C=6
 
-find -- "$DEST/" -mindepth 1 -maxdepth 1 -type d -name '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]' |
-awk -F '\t' -v 'OFS=\t' -v "P=$DEST" -v "C=$SRC_C" 'BEGIN{L=length(P)}{$C=substr($C,L+1);sub(/^\/+/,"",$C);print}' |
-sort -t $'\t' -k $SRC_C,$SRC_C |
+find -- "${DEST:?}/" -mindepth 1 -maxdepth 1 -type d -name '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]-[0-9][0-9][0-9][0-9][0-9][0-9]' |
+awk -F '\t' -v 'OFS=\t' -v "P=${DEST:?}" -v "C=${SRC_C:?}" 'BEGIN{L=length(P)}{$C=substr($C,L+1);sub(/^\/+/,"",$C);print}' |
+sort -t $'\t' -k "${SRC_C:?},${SRC_C:?}" |
 
 awk '$0=substr($0,1,10)" "substr($0,12,2)":"substr($0,14,2)":"substr($0,16,2)' | #%Y-%m-%d-%H%M%S -> %Y-%m-%d %H:%M:%S
 xargs -I {} date "${DATE_ISO[@]}" {} +%Y-%m-%d-%H%M%S%t%G%V%t%Y%m%d%t%s | #%Y-%m-%d %H:%M:%S -> %Y-%m-%d-%H%M%S%t%G%V%t%Y%m%d%t%s
 
-awk -F '\t' -v 'OFS=\t' -v "C=$WEEK_C" '{if($C!=P)I=0;P=$C;print$0,I++}' |
-awk -F '\t' -v 'OFS=\t' -v "C=$DATE_C" '{if($C!=P)I=0;P=$C;print$0,I++}' |
+awk -F '\t' -v 'OFS=\t' -v "C=${WEEK_C:?}" '{if($C!=P)I=0;P=$C;print$0,I++}' |
+awk -F '\t' -v 'OFS=\t' -v "C=${DATE_C:?}" '{if($C!=P)I=0;P=$C;print$0,I++}' |
 
-awk -F '\t' -v "SRC_C=$SRC_C" -v "TIMESTAMP_C=$TIMESTAMP_C" -v "WEEK_I_C=$WEEK_I_C" -v "DATE_I_C=$DATE_I_C" -v "MONTH_AGO=$MONTH_AGO" -v "DAY_AGO=$DAY_AGO" \
+awk -F '\t' -v "SRC_C=${SRC_C:?}" -v "TIMESTAMP_C=${TIMESTAMP_C:?}" -v "WEEK_I_C=${WEEK_I_C:?}" -v "DATE_I_C=${DATE_I_C:?}" -v "MONTH_AGO=${MONTH_AGO:?}" -v "DAY_AGO=${DAY_AGO:?}" \
     '{if($TIMESTAMP_C<=MONTH_AGO&&$WEEK_I_C!=0||MONTH_AGO<$TIMESTAMP_C&&$TIMESTAMP_C<=DAY_AGO&&$DATE_I_C!=0)print$SRC_C}' |
 
 while read -r BACKUP
 do
-    echo "Removing old backup: $BACKUP" >&2
+    echo "Removing old backup: ${BACKUP:?}" >&2
 
     rm -rf -- "${DEST:?}/${BACKUP:?}"
 done
