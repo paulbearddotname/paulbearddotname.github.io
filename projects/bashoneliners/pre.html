@@ -2,4 +2,8 @@
 <span class="Comment"># Find large files and directories:</span>
 
 <span class="Statement">du</span> <span class="Special">-amx</span> /|<span class="Statement">sort</span> <span class="Special">-t</span><span class="Statement">$'</span><span class="Special">\t</span><span class="Statement">'</span> <span class="Special">-k</span>1nr,<span class="Constant">1</span>|<span class="Statement">head</span> <span class="Constant">-100</span>|<span class="Statement">sort</span> <span class="Special">-t</span><span class="Statement">$'</span><span class="Special">\t</span><span class="Statement">'</span> <span class="Special">-k</span>2,<span class="Constant">2</span>
+
+<span class="Comment"># Convert TSV files to CSV:</span>
+
+<span class="Statement">sed</span> <span class="Statement">'</span><span class="Constant">s/&quot;/&quot;&quot;/g;s/</span><span class="Statement">'$'</span><span class="Special">\t</span><span class="Statement">''</span><span class="Constant">/&quot;,&quot;/g;s/^/&quot;/;s/$/&quot;/</span><span class="Statement">'</span>
 </pre>
