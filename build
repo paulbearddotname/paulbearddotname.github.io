@@ -18,8 +18,9 @@ cat <<EOD
     <head>
         <title>Paul's website</title>
         <style>
-            body { font-family: sans-serif; }
-            h1, h2 { font-weight: normal; }
+            body { font-family: sans-serif; -webkit-font-smoothing: antialiased; }
+            h1 { font-size: 2.5rem; line-height: 1.25; margin-block: 0; }
+            h2 { font-size: 1.75rem; line-height: 1.25; margin-block: 0; }
             a { text-decoration: inherit; color: inherit; }
             pre { white-space: pre-wrap; font-family: monospace; color: #000000; background-color: #ffffff; }
 EOD
@@ -31,17 +32,19 @@ cat <<EOD
         <div style="display: flex; flex-wrap: wrap;">
             <h1 style="flex: auto; white-space: nowrap;">Paul's website</h1>
 
-            <p style="flex: none;">
+            <div style="flex: none;">
                 <a href="mailto:web@paulbeard.name">Email Address web@paulbeard.name</a><br>
                 <a href="https://github.com/paulbearddotname" target="_blank">GitHub Profile github.com/paulbearddotname</a>
-            </p>
+            </div>
         </div>
 EOD
 
 cat projects/signature/comment.html projects/signature/pre.html
 
-find projects -mindepth 1 -maxdepth 1 -type d | sort | while read -r PROJECT
+#find projects -mindepth 1 -maxdepth 1 -type d | sort | while read -r
+for PROJECT in dzadsb dzwinds bashoneliners gpmlcli lnbackup basicgames
 do
+    PROJECT=projects/${PROJECT:?}
     if [[ ! -e "${PROJECT:?}"/index.html ]]
     then
         continue
